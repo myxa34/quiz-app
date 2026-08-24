@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Викторина — по ссылке</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: linear-gradient(145deg, #f0f4f8 0%, #d9e2ec 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            border-radius: 48px;
+            padding: 40px 45px;
+            max-width: 640px;
+            width: 100%;
+            box-shadow: 0 25px 50px -8px rgba(0, 20, 40, 0.3);
+            border: 1px solid rgba(255,255,255,0.6);
+            transition: 0.3s;
+        }
+
+        /* ===== МЕНЮ ===== */
+        #menu-screen h1 {
+            font-size: 34px;
+            font-weight: 700;
+            color: #0b1a33;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        #menu-screen h1 span {
+            background: #0b1a33;
+            color: white;
+            font-size: 16px;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-weight: 500;
+        }
+        .subtitle {
+            color: #2c4a6b;
+            font-size: 16px;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        .menu-group {
+            background: #f8faff;
+            border-radius: 24px;
+            padding: 20px 24px;
+            margin-bottom: 18px;
+            border: 1px solid #e6edf5;
+        }
+        .menu-group label {
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #1a3a5c;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .category-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .chip {
+            background: white;
+            border: 2px solid #d0dbe8;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.15s;
+            color: #1a344f;
+        }
+        .chip:hover {
+            border-color: #7f9bb3;
+            background: #f5faff;
+        }
+        .chip.active {
+            background: #0b1a33;
+            border-color: #0b1a33;
+            color: white;
+        }
+
+        .timer-slider {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+        .timer-slider input[type="range"] {
+            flex: 1;
+            min-width: 140px;
+            height: 6px;
+            -webkit-appearance: none;
+            background: #d0dbe8;
+            border-radius: 10px;
+            outline: none;
+        }
+        .timer-slider input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #0b1a33;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .timer-value {
+            font-weight: 700;
+            font-size: 22px;
+            color: #0b1a33;
+            min-width: 48px;
+            text-align: center;
+        }
+
+        .btn-start {
+            width: 100%;
+            padding: 18px;
+            background: #0b1a33;
+            color: white;
+            border: none;
+            border-radius: 60px;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+        }
+        .btn-start:hover {
+            background: #1f3457;
+            transform: scale(1.01);
+        }
+        .btn-start:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .share-link {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: #eef4fa;
+            border-radius: 16px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            font-size: 14px;
+            color: #1a344f;
+            border: 1px dashed #7f9bb3;
+        }
+        .share-link input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            color: #0b1a33;
+            outline: none;
+            min-width: 120px;
+            padding: 4px 0;
+        }
+        .share-link button {
+            background: #0b1a33;
+            color: white;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        .share-link button:hover {
+            background: #1f3457;
+        }
+
+        /* ===== ИГРОВОЙ ЭКРАН ===== */
+        #game-screen {
+            display: none;
+        }
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .game-header .category-badge {
+            background: #0b1a33;
+            color: white;
+            padding: 4px 18px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .btn-exit {
+            background: none;
+            border: 2px solid #d0dbe8;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            color: #1a344f;
+            cursor: pointer;
+            transition: 0.15s;
+            font-size: 14px;
+        }
+        .btn-exit:hover {
+            background: #eef4fa;
+            border-color: #7f9bb3;
+        }
+
+        .timer-bar {
+            height: 8px;
+            background: #dce5ed;
+            border-radius: 20px;
+            margin: 16px 0 18px 0;
+            overflow: hidden;
+        }
+        .timer-fill {
+            height: 100%;
+            width: 100%;
+            background: #2ecc71;
+            border-radius: 20px;
+            transition: width 0.3s linear, background 0.4s;
+        }
+
+        .question-text {
+            font-size: 22px;
+            font-weight: 600;
+            color: #0b1a33;
+            min-height: 4rem;
+            margin: 8px 0 20px 0;
+            line-height: 1.4;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 16px 0 20px 0;
+        }
+        .option-btn {
+            background: white;
+            border: 2px solid #d0dbe8;
+            border-radius: 16px;
+            padding: 16px 20px;
+            font-size: 17px;
+            font-weight: 500;
+            color: #0b1a33;
+            cursor: pointer;
+            transition: 0.15s;
+            text-align: left;
+        }
+        .option-btn:hover:not(:disabled) {
+            border-color: #7f9bb3;
+            background: #f5faff;
+        }
+        .option-btn:disabled {
+            cursor: default;
+            opacity: 0.85;
+        }
+        .correct {
+            background: #2ecc71 !important;
+            border-color: #1f9c4e !important;
+            color: white !important;
+        }
+        .wrong {
+            background: #e74c3c !important;
+            border-color: #b03a2e !important;
+            color: white !important;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 15px;
+            color: #1a344f;
+            margin: 12px 0 14px 0;
+        }
+        .game-info span {
+            background: #edf4fa;
+            padding: 4px 16px;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+        .game-info .score-badge {
+            background: #0b1a33;
+            color: white;
+        }
+
+        #next-btn {
+            width: 100%;
+            padding: 14px;
+            background: #0b1a33;
+            color: white;
+            border: none;
+            border-radius: 60px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: none;
+        }
+        #next-btn:hover {
+            background: #1f3457;
+        }
+
+        /* ===== ФИНИШ ===== */
+        .finish-box {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .finish-box h2 {
+            font-size: 30px;
+            color: #0b1a33;
+        }
+        .finish-box p {
+            font-size: 18px;
+            color: #1a344f;
+            margin: 8px 0;
+        }
+        .finish-box .big-score {
+            font-size: 52px;
+            font-weight: 700;
+            color: #0b1a33;
+        }
+        .restart-btn {
+            background: transparent;
+            border: 2px solid #0b1a33;
+            color: #0b1a33;
+            padding: 14px;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
+            margin-top: 14px;
+        }
+        .restart-btn:hover {
+            background: #0b1a33;
+            color: white;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 500px) {
+            .container { padding: 24px; }
+            .question-text { font-size: 19px; }
+            #menu-screen h1 { font-size: 26px; }
+            .share-link { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- ============================================ -->
+    <!--  ЭКРАН 1: МЕНЮ                               -->
+    <!-- ============================================ -->
+    <div id="menu-screen">
+        <h1>
+            🧠 Викторина
+            <span>v3</span>
+        </h1>
+        <div class="subtitle">Выберите настройки и начните игру</div>
+
+        <!-- Категории -->
+        <div class="menu-group">
+            <label>📂 Категория</label>
+            <div class="category-chips" id="category-chips">
+                <button class="chip active" data-category="all">Все</button>
+            </div>
+        </div>
+
+        <!-- Таймер -->
+        <div class="menu-group">
+            <label>⏱ Время на вопрос</label>
+            <div class="timer-slider">
+                <input type="range" id="timer-slider" min="3" max="30" value="10" step="1" />
+                <span class="timer-value" id="timer-display">10</span>
+                <span style="font-weight:500; color:#1a344f;">сек</span>
+            </div>
+        </div>
+
+        <button class="btn-start" id="btn-start">🚀 Старт</button>
+        <p style="font-size:13px; color:#5a7a9a; margin-top:12px; text-align:center;">
+            Всего вопросов: <span id="total-questions-count">0</span>
+        </p>
+
+        <!-- Блок для копирования ссылки -->
+        <div class="share-link">
+            <span>🔗 Ссылка для друзей:</span>
+            <input type="text" id="share-input" readonly value="" />
+            <button id="copy-link-btn">📋 Копировать</button>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!--  ЭКРАН 2: ИГРА                              -->
+    <!-- ============================================ -->
+    <div id="game-screen">
+        <div class="game-header">
+            <span class="category-badge" id="game-category">Категория</span>
+            <button class="btn-exit" id="btn-exit">✕ Выйти</button>
+        </div>
+
+        <div class="timer-bar">
+            <div class="timer-fill" id="timer-fill"></div>
+        </div>
+
+        <div class="question-text" id="question-text">Загрузка...</div>
+
+        <div class="options-grid" id="options-container"></div>
+
+        <div class="game-info">
+            <span>📌 <span id="current-q">1</span>/<span id="total-q">10</span></span>
+            <span class="score-badge">⭐ <span id="score-count">0</span></span>
+            <span>⏱ <span id="timer-seconds">10</span>с</span>
+        </div>
+
+        <button id="next-btn">Следующий вопрос →</button>
+    </div>
+</div>
+
+<script>
+    // ================================================================
+    //  1.  БАЗА ВОПРОСОВ
+    // ================================================================
+    const QUESTIONS_BASE = [
+        { category: "География", question: "Столица Австралии?", options: ["Сидней", "Мельбурн", "Канберра", "Перт"], correct: 2 },
+        { category: "География", question: "Самая длинная река в мире?", options: ["Амазонка", "Нил", "Миссисипи", "Янцзы"], correct: 1 },
+        { category: "География", question: "Какая страна занимает первое место по площади?", options: ["Китай", "США", "Канада", "Россия"], correct: 3 },
+        { category: "Наука", question: "H₂O — это формула...", options: ["Соли", "Кислоты", "Воды", "Щёлочи"], correct: 2 },
+        { category: "Наука", question: "Какой газ мы вдыхаем в наибольшем количестве?", options: ["Кислород", "Азот", "Углекислый газ", "Водород"], correct: 1 },
+        { category: "Наука", question: "Сколько хромосом у здорового человека?", options: ["44", "46", "48", "23"], correct: 1 },
+        { category: "История", question: "В каком году была первая Олимпиада в России?", options: ["1980", "2014", "2000", "1990"], correct: 0 },
+        { category: "История", question: "Кто был первым президентом США?", options: ["Вашингтон", "Линкольн", "Джефферсон", "Адамс"], correct: 0 },
+        { category: "История", question: "Как назывался первый космический корабль Гагарина?", options: ["Восток", "Союз", "Аполлон", "Спутник"], correct: 0 },
+        { category: "IT", question: "Что такое CSS?", options: ["Язык разметки", "Язык стилей", "База данных", "Фреймворк"], correct: 1 },
+        { category: "IT", question: "Что означает HTML?", options: ["Hyper Text Markup Language", "High Tech Modern Language", "Hyper Transfer Markup Language", "Home Tool Markup Language"], correct: 0 },
+        { category: "IT", question: "Какая компания создала Windows?", options: ["Apple", "Google", "Microsoft", "IBM"], correct: 2 },
+    ];
+
+    // ================================================================
+    //  2.  DOM-ссылки
+    // ================================================================
+    const menuScreen = document.getElementById('menu-screen');
+    const gameScreen = document.getElementById('game-screen');
+
+    const categoryChips = document.getElementById('category-chips');
+    const timerSlider = document.getElementById('timer-slider');
+    const timerDisplay = document.getElementById('timer-display');
+    const btnStart = document.getElementById('btn-start');
+    const totalQuestionsSpan = document.getElementById('total-questions-count');
+
+    const gameCategory = document.getElementById('game-category');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const nextBtn = document.getElementById('next-btn');
+    const exitBtn = document.getElementById('btn-exit');
+    const currentQSpan = document.getElementById('current-q');
+    const totalQSpan = document.getElementById('total-q');
+    const scoreSpan = document.getElementById('score-count');
+    const timerFill = document.getElementById('timer-fill');
+    const timerSecondsSpan = document.getElementById('timer-seconds');
+
+    const shareInput = document.getElementById('share-input');
+    const copyBtn = document.getElementById('copy-link-btn');
+
+    // ================================================================
+    //  3.  СОСТОЯНИЕ
+    // ================================================================
+    let selectedCategory = 'all';
+    let maxTime = 10;
+
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let isAnswered = false;
+    let timerInterval = null;
+    let timeLeft = maxTime;
+
+    // ================================================================
+    //  4.  РАБОТА СО ССЫЛКАМИ (РОУТИНГ)
+    // ================================================================
+    function updateShareLink() {
+        const url = new URL(window.location);
+        // Убираем хэш, чтобы показать чистую ссылку на меню
+        url.hash = '';
+        shareInput.value = url.toString();
+    }
+
+    function copyShareLink() {
+        navigator.clipboard?.writeText(shareInput.value)
+            .then(() => {
+                const original = copyBtn.textContent;
+                copyBtn.textContent = '✅ Скопировано!';
+                setTimeout(() => copyBtn.textContent = original, 2000);
+            })
+            .catch(() => {
+                // fallback
+                shareInput.select();
+                document.execCommand('copy');
+                const original = copyBtn.textContent;
+                copyBtn.textContent = '✅ Скопировано!';
+                setTimeout(() => copyBtn.textContent = original, 2000);
+            });
+    }
+
+    // ================================================================
+    //  5.  РОУТИНГ ПО ХЭШУ
+    // ================================================================
+    function navigateTo(screen) {
+        if (screen === 'game') {
+            // Если игра ещё не запущена — запускаем с текущими настройками
+            if (currentQuestions.length === 0) {
+                // Берём вопросы по выбранной категории
+                let raw = getQuestionsByCategory(selectedCategory);
+                if (raw.length === 0) {
+                    // Если нет вопросов — идём в меню
+                    window.location.hash = 'menu';
+                    return;
+                }
+                currentQuestions = raw.map(q => shuffleOptions(q));
+                shuffleArray(currentQuestions);
+                currentIndex = 0;
+                score = 0;
+                isAnswered = false;
+                scoreSpan.textContent = '0';
+            }
+            menuScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            loadQuestion(currentIndex);
+            window.location.hash = 'game';
+        } else {
+            // menu
+            stopTimer();
+            menuScreen.style.display = 'block';
+            gameScreen.style.display = 'none';
+            document.querySelector('.game-info').style.display = 'flex';
+            updateTotalCount();
+            updateShareLink();
+            window.location.hash = 'menu';
+        }
+    }
+
+    function handleHashChange() {
+        const hash = window.location.hash.replace('#', '');
+        if (hash === 'game') {
+            navigateTo('game');
+        } else {
+            navigateTo('menu');
+        }
+    }
+
+    // ================================================================
+    //  6.  ВСПОМОГАТЕЛЬНЫЕ
+    // ================================================================
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function shuffleOptions(q) {
+        const copy = { ...q, options: [...q.options] };
+        const correctAnswer = copy.options[copy.correct];
+        shuffleArray(copy.options);
+        copy.correct = copy.options.indexOf(correctAnswer);
+        return copy;
+    }
+
+    function getCategories() {
+        const cats = new Set(QUESTIONS_BASE.map(q => q.category));
+        return Array.from(cats).sort();
+    }
+
+    function getQuestionsByCategory(category) {
+        if (category === 'all') return QUESTIONS_BASE.map(q => ({ ...q }));
+        return QUESTIONS_BASE.filter(q => q.category === category).map(q => ({ ...q }));
+    }
+
+    // ================================================================
+    //  7.  МЕНЮ
+    // ================================================================
+    function renderCategoryChips() {
+        const cats = getCategories();
+        categoryChips.innerHTML = '';
+        const allChip = document.createElement('button');
+        allChip.className = 'chip active';
+        allChip.dataset.category = 'all';
+        allChip.textContent = 'Все';
+        allChip.addEventListener('click', () => selectCategory('all'));
+        categoryChips.appendChild(allChip);
+
+        cats.forEach(cat => {
+            const chip = document.createElement('button');
+            chip.className = 'chip';
+            chip.dataset.category = cat;
+            chip.textContent = cat;
+            chip.addEventListener('click', () => selectCategory(cat));
+            categoryChips.appendChild(chip);
+        });
+    }
+
+    function selectCategory(cat) {
+        selectedCategory = cat;
+        document.querySelectorAll('.chip').forEach(ch => {
+            ch.classList.toggle('active', ch.dataset.category === cat);
+        });
+        updateTotalCount();
+        // Сбрасываем текущие вопросы при смене категории
+        currentQuestions = [];
+    }
+
+    function updateTotalCount() {
+        const qs = getQuestionsByCategory(selectedCategory);
+        totalQuestionsSpan.textContent = qs.length;
+        btnStart.disabled = qs.length === 0;
+    }
+
+    // Таймер слайдер
+    timerSlider.addEventListener('input', () => {
+        maxTime = parseInt(timerSlider.value, 10);
+        timerDisplay.textContent = maxTime;
+    });
+
+    // Копирование ссылки
+    copyBtn.addEventListener('click', copyShareLink);
+
+    // ================================================================
+    //  8.  ЗАПУСК ИГРЫ
+    // ================================================================
+    btnStart.addEventListener('click', () => {
+        let raw = getQuestionsByCategory(selectedCategory);
+        if (raw.length === 0) return;
+        currentQuestions = raw.map(q => shuffleOptions(q));
+        shuffleArray(currentQuestions);
+        currentIndex = 0;
+        score = 0;
+        isAnswered = false;
+        scoreSpan.textContent = '0';
+        navigateTo('game');
+    });
+
+    // ================================================================
+    //  9.  ИГРОВАЯ ЛОГИКА
+    // ================================================================
+    function loadQuestion(index) {
+        stopTimer();
+        isAnswered = false;
+        nextBtn.style.display = 'none';
+
+        const q = currentQuestions[index];
+        if (!q) return;
+
+        gameCategory.textContent = q.category || 'Без категории';
+        questionText.textContent = q.question;
+        currentQSpan.textContent = index + 1;
+        totalQSpan.textContent = currentQuestions.length;
+        scoreSpan.textContent = score;
+
+        optionsContainer.innerHTML = '';
+        q.options.forEach((text, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = text;
+            btn.dataset.index = idx;
+            btn.addEventListener('click', () => handleAnswer(btn, idx, q.correct));
+            optionsContainer.appendChild(btn);
+        });
+
+        timeLeft = maxTime;
+        startTimer();
+    }
+
+    function handleAnswer(btn, selected, correct) {
+        if (isAnswered) return;
+        isAnswered = true;
+        stopTimer();
+
+        const allBtns = document.querySelectorAll('.option-btn');
+
+        if (selected === correct) {
+            btn.classList.add('correct');
+            score++;
+            scoreSpan.textContent = score;
+        } else {
+            btn.classList.add('wrong');
+            allBtns.forEach((b, idx) => {
+                if (idx === correct) b.classList.add('correct');
+            });
+        }
+
+        allBtns.forEach(b => b.disabled = true);
+        nextBtn.style.display = 'block';
+    }
+
+    function goToNext() {
+        if (currentIndex + 1 < currentQuestions.length) {
+            currentIndex++;
+            loadQuestion(currentIndex);
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        stopTimer();
+        questionText.textContent = '🎉 Викторина завершена!';
+        optionsContainer.innerHTML = `
+            <div class="finish-box">
+                <div class="big-score">${score} / ${currentQuestions.length}</div>
+                <p style="font-size:20px; font-weight:600; color:#0b1a33;">
+                    ${score === currentQuestions.length ? '🏆 Идеально!' :
+                      score >= currentQuestions.length * 0.7 ? '👏 Отлично!' :
+                      score >= currentQuestions.length * 0.4 ? '💪 Хорошо!' : '📚 Тренируйтесь больше!'}
+                </p>
+                <button class="restart-btn" id="restart-from-finish">🔄 Играть снова</button>
+                <button class="restart-btn" style="margin-top:8px; background:#0b1a33; color:white; border-color:#0b1a33;" id="menu-from-finish">🏠 В меню</button>
+            </div>
+        `;
+        nextBtn.style.display = 'none';
+        document.querySelector('.game-info').style.display = 'none';
+        timerFill.style.width = '0%';
+        timerSecondsSpan.textContent = '0';
+        gameCategory.textContent = '🏁 Финиш';
+
+        document.getElementById('restart-from-finish').addEventListener('click', () => {
+            // Перезапуск с теми же вопросами
+            currentQuestions = currentQuestions.map(q => shuffleOptions(q));
+            shuffleArray(currentQuestions);
+            currentIndex = 0;
+            score = 0;
+            isAnswered = false;
+            scoreSpan.textContent = '0';
+            document.querySelector('.game-info').style.display = 'flex';
+            loadQuestion(0);
+        });
+        document.getElementById('menu-from-finish').addEventListener('click', () => {
+            navigateTo('menu');
+        });
+    }
+
+    // ================================================================
+    //  10. ТАЙМЕР
+    // ================================================================
+    function stopTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+    }
+
+    function startTimer() {
+        stopTimer();
+        timeLeft = maxTime;
+        updateTimerUI();
+
+        timerInterval = setInterval(() => {
+            timeLeft -= 0.3;
+            if (timeLeft < 0) timeLeft = 0;
+            updateTimerUI();
+
+            if (timeLeft <= 0) {
+                stopTimer();
+                if (!isAnswered) {
+                    const allBtns = document.querySelectorAll('.option-btn');
+                    const q = currentQuestions[currentIndex];
+                    allBtns.forEach((btn, idx) => {
+                        btn.disabled = true;
+                        if (idx === q.correct) btn.classList.add('correct');
+                    });
+                    isAnswered = true;
+                    nextBtn.style.display = 'block';
+                }
+            }
+        }, 300);
+    }
+
+    function updateTimerUI() {
+        const secs = Math.ceil(timeLeft);
+        timerSecondsSpan.textContent = secs;
+        const percent = (timeLeft / maxTime) * 100;
+        timerFill.style.width = Math.max(0, percent) + '%';
+        if (percent > 50) timerFill.style.background = '#2ecc71';
+        else if (percent > 25) timerFill.style.background = '#f1c40f';
+        else timerFill.style.background = '#e74c3c';
+    }
+
+    // ================================================================
+    //  11. ВЫХОД
+    // ================================================================
+    exitBtn.addEventListener('click', () => navigateTo('menu'));
+    nextBtn.addEventListener('click', goToNext);
+
+    // ================================================================
+    //  12. ИНИЦИАЛИЗАЦИЯ
+    // ================================================================
+    renderCategoryChips();
+    updateTotalCount();
+    timerDisplay.textContent = maxTime;
+    timerSlider.value = maxTime;
+    updateShareLink();
+
+    // Обработчик изменения хэша
+    window.addEventListener('hashchange', handleHashChange);
+
+    // При загрузке страницы смотрим хэш
+    if (window.location.hash === '#game') {
+        // Если сразу открыли с #game — запускаем игру
+        // Нужно подождать, пока DOM загрузится
+        setTimeout(() => {
+            // Берём вопросы по умолчанию
+            let raw = getQuestionsByCategory(selectedCategory);
+            if (raw.length > 0) {
+                currentQuestions = raw.map(q => shuffleOptions(q));
+                shuffleArray(currentQuestions);
+                currentIndex = 0;
+                score = 0;
+                isAnswered = false;
+                scoreSpan.textContent = '0';
+                navigateTo('game');
+            } else {
+                navigateTo('menu');
+            }
+        }, 100);
+    } else {
+        navigateTo('menu');
+    }
+</script>
+</body>
+</html>
